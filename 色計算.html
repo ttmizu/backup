@@ -1,0 +1,126 @@
+<html>
+<head>
+<title></title>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+	<script type="text/javascript">
+	function ColorCode() {}
+	ColorCode.prototype = {
+		getR			: function() { return this.r; },
+		getG			: function() { return this.g; },
+		getB			: function() { return this.b; },
+		getHue			: function() { return this.hue; },
+		getSaturation	: function() { return this.saturation; },
+		getValue		: function() { return this.value; }
+	}
+
+	function RgbCode(r, g, b) {
+		this.r = r;
+		this.g = g;
+		this.b = b;
+		var max = Math.max(r, g, b);
+		var min = Math.min(r, g, b);
+
+		//------------------
+		// 色相
+		//------------------
+		if ((r == g) && (r == b)) {
+			// r = g = b
+			this.hue = 0;
+		}
+		else if ((r >= g) && (r >= b)) {
+			// r が最大
+			this.hue = 60 * (g - b) / (max - min);
+		}
+		else if ((g >= r) && (g >= b)) {
+			// g が最大
+			this.hue = 60 * (b - r) / (max - min) + 120;
+		}
+		else if ((b >= r) && (b >= g)) {
+			// b が最大
+			this.hue = 60 * (r - g) / (max - min) + 240;
+		}
+
+		if (this.hue < 0) {
+			this.hue += 360;
+		}
+		this.hue = Math.round(this.hue);
+
+		//------------------
+		// 彩度
+		//------------------
+		if (max === 0) {
+			this.saturation = 0;
+		}
+		else {
+			this.saturation = Math.round(100 * (max - min) / max);
+		}
+
+		//------------------
+		// 明度
+		//------------------
+		this.value = Math.round(max * 100 / 255);
+
+	}
+	RgbCode.prototype = new ColorCode();
+
+	function HsvCode(hue, saturation, value) {
+		// hue は 0 ～ 360
+		// saturation, value は 0 ～ 100
+		this.hue 		= hue;
+		this.saturation = saturation;
+		this.value 		= value;
+
+		var max = value * 255 / 100;
+		var min = max - ((saturation / 100) * max);
+
+		if (hue < 60) {
+			this.r = max;
+			this.g = (hue / 60) * (max - min) + min;
+			this.b = min;
+		}
+		else if (hue < 120) {
+			this.r = ((120 - hue) / 60) * (max - min) + min;
+			this.g = max;
+			this.b = min;
+		} 
+		else if (hue < 180) {
+			this.r = min;
+			this.g = max;
+			this.b = ((hue - 120) / 60) * (max - min) + min;
+		} 
+		else if (hue < 240) {
+			this.r = min;
+			this.g = ((240 - hue) / 60) * (max - min) + min;
+			this.b = max;
+		}
+		else if (hue < 300) {
+			this.r = ((hue - 240) / 60) * (max - min) + min;
+			this.g = min;
+			this.b = max;
+		} 
+		else {
+			this.r = max;
+			this.g = min;
+			this.b = ((360 - hue) / 60) * (max - min) + min;
+		}
+
+		this.r = Math.round(this.r);
+		this.g = Math.round(this.g);
+		this.b = Math.round(this.b);
+	}
+	HsvCode.prototype = new ColorCode();
+
+	</script>
+
+	<style type="text/css">
+	</style>
+
+</head>
+
+
+<body>
+</body>
+
+
+</html>
