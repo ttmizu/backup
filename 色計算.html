@@ -3,23 +3,65 @@
 <title></title>
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 	<script type="text/javascript" src="color-code.js"></script>
-	<script src="slider/simple-slider.js"></script>
-	<link href="slider/simple-slider.css" rel="stylesheet" type="text/css" />
-	<link href="slider/simple-slider-volume.css" rel="stylesheet" type="text/css" />
+	<script src="../slider/simple-slider.js"></script>
+	<link href="../slider/simple-slider.css" rel="stylesheet" type="text/css" />
+	<link href="../slider/simple-slider-volume.css" rel="stylesheet" type="text/css" />
 
 	<script type="text/javascript">
 		$(function(){
+			var iniCol_0 = new RgbCode(0xaa, 0xcc, 0x66);	// 枠
+			var iniCol_1 = new RgbCode(0xdc, 0xef, 0xd2);	// 背景
+			var iniCol_2 = new RgbCode(0x8c, 0x31, 0x85);	// 文字
+			var iniCol = [iniCol_0.getHue(), iniCol_0.getSaturation(), iniCol_0.getValue(),
+						  iniCol_1.getHue(), iniCol_1.getSaturation(), iniCol_1.getValue(),
+						  iniCol_2.getHue(), iniCol_2.getSaturation(), iniCol_2.getValue(),
+						  iniCol_0.getR(),	 iniCol_0.getG(),		   iniCol_0.getB(),
+						  iniCol_1.getR(),	 iniCol_1.getG(),		   iniCol_1.getB(),
+						  iniCol_2.getR(),	 iniCol_2.getG(),		   iniCol_2.getB()];
+
 			var setup = function(i) {
-				$("#div_" + i).append($('<button id="button_down_%d" style="float:left">▼</button>'.replace('%d', i)));
-				$("#div_" + i).append($('<button id="button_up_%d" style="float:left">▲</button>'.replace('%d', i)));
+				// up
+				$("#div_" + i).append($('<button id="button_down_%d" style="float:left;height:22px;">dn</button>'.replace('%d', i)));
+				// down
+				$("#div_" + i).append($('<button id="button_up_%d" style="float:left;height:22px;">up</button>'.replace('%d', i)));
+				// text box
 				$("#div_" + i).append($('<input id="slider_value_%d" type="text" style="width:30px;float:left">'.replace('%d', i)));
 				$("#div_" + i).append($('<div style="clear:both;"></div>'));
 
-				$("#slider_" + i).simpleSlider("setValue", 50);
-				$("#slider_value_" + i).val(50);
+
+				$("#slider_" + i).simpleSlider("setValue", iniCol[i]);
+				$("#slider_value_" + i).val(iniCol[i]);
+
 				$("#slider_" + i)
 				.bind("slider:changed", function (event, data) {
-					$("#slider_value_" + i).val(data.value);
+					var v = data.value;
+					$("#slider_value_" + i).val(v);
+
+					var base = Math.floor(i/3) * 3;
+					var v0 = $('#slider_value_' + base).val();
+					var v1 = $('#slider_value_' + (base+1)).val();
+					var v2 = $('#slider_value_' + (base+2)).val();
+
+					var code;
+					if (i < 3) {
+						code = new HsvCode(v0, v1, v2);
+						$('#display').css('border', '5px solid ' + code.getRgbCode(true));
+						$('#rgb_val_frm').text(code.getRgbCode(true));	// RGB値 表示
+						$('.color_frm').val(code.getRgbCode(true));		// カラーパレット
+					}
+					else if (i < 6) {
+						code = new HsvCode(v0, v1, v2);
+						$('#display').css('background', code.getRgbCode(true));
+						$('#rgb_val_bck').text(code.getRgbCode(true));	// RGB値 表示
+						$('.color_bck').val(code.getRgbCode(true));		// カラーパレット
+					}
+					else if (i < 9) {
+						code = new HsvCode(v0, v1, v2);
+						$('#display').css('color', code.getRgbCode(true));
+						$('#rgb_val_moj').text(code.getRgbCode(true));	// RGB値 表示
+						$('.color_moj').val(code.getRgbCode(true));		// カラーパレット
+					}
+
 				});
 
 				$("#slider_value_" + i).change(function() {
@@ -39,71 +81,102 @@
 		    			$("#slider_" + i).simpleSlider("setValue", v-1);
 					}
 				});
+
 			}
 
-
-//	<input id="slider_1" type="text" data-slider="true" data-slider-step="1" data-slider-range="0,360" data-slider-theme="volume"  data-slider-highlight="true">
-//	<input id="slider_value_1" type="text" style="width:30px">
-//	<button id='button_doun_1' >▼</button>
-//	<button id='button_up_1' >▲</button>
-
+			setup(0);
 			setup(1);
 			setup(2);
 			setup(3);
-/*
-			$("#slider_1").simpleSlider("setValue", 50);
-			$("#slider_value_1").val(50);
-			$("#slider_1")
-			.bind("slider:changed", function (event, data) {
-				$("#slider_value_1").val(data.value);
+			setup(4);
+			setup(5);
+			setup(6);
+			setup(7);
+			setup(8);
+
+			// 表示エリア
+			$('#display').css('border', '5px solid ' + iniCol_0.getRgbCode(true));
+			$('#display').css('background', iniCol_1.getRgbCode(true));
+			$('#display').css('color', iniCol_2.getRgbCode(true));
+			// RGB値 表示エリア
+			$('#rgb_val_frm').text(iniCol_0.getRgbCode(true));
+			$('#rgb_val_bck').text(iniCol_1.getRgbCode(true));
+			$('#rgb_val_moj').text(iniCol_2.getRgbCode(true));
+			// カラーパレット初期化
+			$('.color_frm').val(iniCol_0.getRgbCode(true));
+			$('.color_bck').val(iniCol_1.getRgbCode(true));
+			$('.color_moj').val(iniCol_2.getRgbCode(true));
+
+			// 補色 押された
+			$('.button_cmpl_frm').click(function () {
+				var v0 = $('#slider_value_0').val();
+				var v1 = $('#slider_value_1').val();
+				var v2 = $('#slider_value_2').val();
+				var cmpl = (new HsvCode(v0, v1, v2)).getComplementary();
+				$("#slider_0").simpleSlider("setValue", cmpl.getHue());
+				$("#slider_1").simpleSlider("setValue", cmpl.getSaturation());
+				$("#slider_2").simpleSlider("setValue", cmpl.getValue());
+			});
+			$('.button_cmpl_bck').click(function () {
+				var v0 = $('#slider_value_3').val();
+				var v1 = $('#slider_value_4').val();
+				var v2 = $('#slider_value_5').val();
+				var cmpl = (new HsvCode(v0, v1, v2)).getComplementary();
+				$("#slider_3").simpleSlider("setValue", cmpl.getHue());
+				$("#slider_4").simpleSlider("setValue", cmpl.getSaturation());
+				$("#slider_5").simpleSlider("setValue", cmpl.getValue());
+			});
+			$('.button_cmpl_moj').click(function () {
+				var v0 = $('#slider_value_6').val();
+				var v1 = $('#slider_value_7').val();
+				var v2 = $('#slider_value_8').val();
+				var cmpl = (new HsvCode(v0, v1, v2)).getComplementary();
+				$("#slider_6").simpleSlider("setValue", cmpl.getHue());
+				$("#slider_7").simpleSlider("setValue", cmpl.getSaturation());
+				$("#slider_8").simpleSlider("setValue", cmpl.getValue());
+			});
+			// カラーパレット 選択された
+			$('.color_frm').on('change', function(){
+				var rgb = new RgbCode($('.color_frm').val());
+				$("#slider_0").simpleSlider("setValue", rgb.getHue());
+				$("#slider_1").simpleSlider("setValue", rgb.getSaturation());
+				$("#slider_2").simpleSlider("setValue", rgb.getValue());
+			});
+			$('.color_bck').on('change', function(){
+				var rgb = new RgbCode($('.color_bck').val());
+				$("#slider_3").simpleSlider("setValue", rgb.getHue());
+				$("#slider_4").simpleSlider("setValue", rgb.getSaturation());
+				$("#slider_5").simpleSlider("setValue", rgb.getValue());
+			});
+			$('.color_moj').on('change', function(){
+				var rgb = new RgbCode($('.color_moj').val());
+				$("#slider_6").simpleSlider("setValue", rgb.getHue());
+				$("#slider_7").simpleSlider("setValue", rgb.getSaturation());
+				$("#slider_8").simpleSlider("setValue", rgb.getValue());
 			});
 
-			$("#slider_value_1").change(function() {
-				$("#slider_1").simpleSlider("setValue", $("#slider_value_1").val());
-			});
-
-			$('#button_up_1').click(function () {
-				var v = (Number)($("#slider_1").val());
-				var range = $("#slider_1").attr("data-slider-range").split(",");
-				console.log("aaa " + range);
-				if (v < range[1]) {
-	    			$("#slider_1").simpleSlider("setValue", v+1);
-				}
-			});
-			$('#button_doun_1').click(function () {
-				var v = (Number)($("#slider_1").val());
-				if (v > 0) {
-	    			$("#slider_1").simpleSlider("setValue", v-1);
-				}
-			});
-*/
 		});
-
-		var col = new RgbCode(43, 109, 232);
-		console.log(col.getR() + ' '  + col.getG() + ' ' + col.getB());
-		console.log(col.getHue());
-		console.log(col.getSaturation());
-		console.log(col.getValue());
-
-	    var col2 = new HsvCode(col.getHue(), col.getSaturation(), col.getValue());
-		console.log(col2.getHue() + ' '  + col.getSaturation() + ' ' + col.getValue());
-		console.log(col2.getR());
-		console.log(col2.getG());
-		console.log(col2.getB());
-
-
 	</script>
 
 	<style type="text/css">
+	<!--	-->
 	</style>
 
 </head>
 
 <body>
 
+<div style="float:left"><img src="moji_waku.png" /></div>
+<div style="margin-bottom:5px;float:left;">
+	<div id="div_0">
+		<div style="float:left">
+			<input id="slider_0" type="text" data-slider="true" data-slider-step="1" data-slider-range="0,360" data-slider-theme="volume"  data-slider-highlight="true">
+		</div>
+	</div>
+
 	<div id="div_1">
 		<div style="float:left">
-			<input id="slider_1" type="text" data-slider="true" data-slider-step="1" data-slider-range="0,360" data-slider-theme="volume"  data-slider-highlight="true">
+			<input id="slider_1" type="text" data-slider="true" data-slider-step="1" data-slider-range="0,100" data-slider-theme="volume"  data-slider-highlight="true">
 		</div>
 	</div>
 
@@ -112,12 +185,81 @@
 			<input id="slider_2" type="text" data-slider="true" data-slider-step="1" data-slider-range="0,100" data-slider-theme="volume"  data-slider-highlight="true">
 		</div>
 	</div>
+</div>
+<div style="float:left">
+	<button class="button_cmpl_frm" style="width:50px;height:32px;padding: 0;margin:0">
+		<img src="hoshoku.png" />
+	</button>
+	</br>
+	<input class="color_frm" type="color" style="width:50px;height:32px;">
+</div>
+<div style="clear:both"></div>
 
+<div style="float:left"><img src="moji_haikei.png" /></div>
+<div style="margin-bottom:5px;float:left;">
 	<div id="div_3">
 		<div style="float:left">
-			<input id="slider_3" type="text" data-slider="true" data-slider-step="1" data-slider-range="0,100" data-slider-theme="volume"  data-slider-highlight="true">
+			<input id="slider_3" type="text" data-slider="true" data-slider-step="1" data-slider-range="0,360" data-slider-theme="volume"  data-slider-highlight="true">
 		</div>
 	</div>
+	<div id="div_4">
+		<div style="float:left">
+			<input id="slider_4" type="text" data-slider="true" data-slider-step="1" data-slider-range="0,100" data-slider-theme="volume"  data-slider-highlight="true">
+		</div>
+	</div>
+	<div id="div_5">
+		<div style="float:left">
+			<input id="slider_5" type="text" data-slider="true" data-slider-step="1" data-slider-range="0,100" data-slider-theme="volume"  data-slider-highlight="true">
+		</div>
+	</div>
+</div>
+<div style="float:left">
+	<button class="button_cmpl_bck" style="width:50px;height:32px;padding: 0;margin:0">
+		<img src="hoshoku.png" />
+	</button>
+	</br>
+	<input class="color_bck" type="color" style="width:50px;height:32px;">
+</div>
+<div style="clear:both"></div>
+
+<div style="float:left"><img src="moji_moji.png" /></div>
+<div style="float:left;">
+	<div id="div_6">
+		<div style="float:left">
+			<input id="slider_6" type="text" data-slider="true" data-slider-step="1" data-slider-range="0,360" data-slider-theme="volume"  data-slider-highlight="true">
+		</div>
+	</div>
+	<div id="div_7">
+		<div style="float:left">
+			<input id="slider_7" type="text" data-slider="true" data-slider-step="1" data-slider-range="0,100" data-slider-theme="volume"  data-slider-highlight="true">
+		</div>
+	</div>
+	<div id="div_8">
+		<div style="float:left">
+			<input id="slider_8" type="text" data-slider="true" data-slider-step="1" data-slider-range="0,100" data-slider-theme="volume"  data-slider-highlight="true">
+		</div>
+	</div>
+</div>
+<div style="float:left">
+	<button class="button_cmpl_moj" style="width:50px;height:32px;padding: 0;margin:0">
+		<img src="hoshoku.png" />
+	</button>
+	</br>
+	<input class="color_moj" type="color" style="width:50px;height:32px;">
+</div>
+<div style="clear:both"></div>
+
+	<div id="display" style="width:300px;height:80px;padding-top:5px;padding-left:7px;">
+		<span style="font-size:16px;">sample</span>
+		<span style="font-size:20px;font-weight:bold">sample</span>
+		<span style="font-size:24px;font-weight:bold">sample</span>
+		<span style="font-size:28px;font-weight:bold">sample</span>
+		<div style="width:50%;margin:0 auto;">
+			<span style="font-size:40px;font-weight:bold">sample</span>
+		</div>
+	</div>
+
+	<span id="rgb_val_frm"></span> <span id="rgb_val_bck"></span> <span id="rgb_val_moj"></span>
 
 <!--
 	<input id="slider_value_1" type="text" style="width:30px">
